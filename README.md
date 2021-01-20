@@ -14,8 +14,7 @@
      - [동기식 호출 / 서킷 브레이킹 / 장애격리](#동기식-호출-서킷-브레이킹-장애격리)
      - [오토스케일 아웃](#오토스케일-아웃)
      - [무정지 재배포](#무정지-재배포)
-   - [신규 개발 조직의 추가](#신규-개발-조직의-추가)
- 
+    
 # 서비스 시나리오
  
  기능적 요구사항
@@ -144,42 +143,115 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 public interface BookRepository extends PagingAndSortingRepository<Book, Long>{
 }
 ```
+
 - 적용 후 REST API 의 테스트 시나리오
+
+1. SAGA
+2. CQRS
+3. Correlation
+
+```
+# 사용자가 도서를 예약한다
+http POST http://20.194.7.119:8080/rentals memberId=1 bookId=1
 ```
 
-# 사용자 도서 예약
-http POST http://localhost:8081/rentals memberId=1 bookId=1
+ ![image](https://user-images.githubusercontent.com/53402465/105122171-10da8b00-5b19-11eb-8ed0-664590206d60.png)
+
+```
+#Rental 내역 확인
+http GET http://20.194.7.119:8080/rentals
+```
+
+ ![image](https://user-images.githubusercontent.com/53402465/105122172-10da8b00-5b19-11eb-8fcb-afa4002c7a42.png)
+
+```
 # 사용자 예약 후 결제확인
-http GET http://localhost:8082/payments/1
-# 사용자 예약한 책 상태 확인
-http GET http://localhost:8084/books/1
-# 사용자 도서 예약취소
-http PATCH http://localhost:8081/rentals/1 reqState="cancel"
-# 결제취소 확인
-http GET http://localhost:8082/payments/1
-# 사용자 예약 취소한 책 상태 확인
-http GET http://localhost:8084/books/1
-# mypage 서비스의 예약/대여 상태 조회
-http GET  http://localhost:8083/mypages
-
-
-# 사용자 도서 예약
-http POST http://localhost:8081/rentals memberId=1 bookId=2
-# 사용자 도서 대여
-http PATCH http://localhost:8081/rentals/2 reqState="rental"
-# 사용자 대여한 책 상태 확인
-http GET http://localhost:8084/books/2
-
-# 사용자 도서 반납
-http PATCH http://localhost:8081/rentals/2 reqState="return"
-# 사용자 반납한 책 상태 확인
-http GET http://localhost:8084/books
-# mypage 서비스의 예약/대여 상태 조회
-http GET  http://localhost:8083/mypages
-
+http GET http://20.194.7.119:8080/payments
 ```
 
+![image](https://user-images.githubusercontent.com/53402465/105122173-11732180-5b19-11eb-843a-44b1c61fdbd2.png)
 
+```
+# 사용자 예약한 책 상태 확인
+http GET http://20.194.7.119:8080/books
+```
+
+![image](https://user-images.githubusercontent.com/53402465/105122175-11732180-5b19-11eb-819d-6a8f95dd2036.png)
+
+```
+# 사용자 도서 예약취소
+http PATCH http://20.194.7.119:8080/rentals/1 reqState="cancel" 
+```
+
+![image](https://user-images.githubusercontent.com/53402465/105122166-0f10c780-5b19-11eb-8693-f5626f980855.png)
+
+```
+# 결제취소 확인
+http GET http://20.194.7.119:8080/rentals/1
+```
+
+![image](https://user-images.githubusercontent.com/53402465/105122169-1041f480-5b19-11eb-99c9-d4597c9fe0a8.png)
+
+```
+# 사용자 예약 취소한 책 상태 확인
+http GET http://20.194.7.119:8080/books
+```
+
+![image](https://user-images.githubusercontent.com/53402465/105122170-1041f480-5b19-11eb-9496-20c40fcfeffb.png)
+
+```
+#마이페이지 확인
+http GET http://20.194.7.119:8080/mypages/1
+```
+
+![image](https://user-images.githubusercontent.com/75401893/105123042-b4786b00-5b1a-11eb-9f8c-0b0b20a7e8d9.png)
+
+```
+# 사용자 도서 예약
+http POST http://20.194.7.119:8080/rentals memberId=1 bookId=1 
+```
+
+![image](https://user-images.githubusercontent.com/53402465/105122636-ee953d00-5b19-11eb-8147-d9e68ba72f74.png)
+
+```
+# 사용자 도서 대여
+http PATCH http://20.194.7.119:8080/rentals/2 reqState="rental" 
+```
+
+![image](https://user-images.githubusercontent.com/53402465/105122637-ee953d00-5b19-11eb-89f2-002a644ebcf0.png)
+
+```
+# 사용자 대여한 책 상태 확인
+http GET http://20.194.7.119:8080/books/
+```
+
+![image](https://user-images.githubusercontent.com/53402465/105122640-efc66a00-5b19-11eb-9ca2-3671c7b3af80.png)
+
+```
+# 사용자 도서 반납
+http PATCH http://20.194.7.119:8080/rentals/2 reqState="return" 
+```
+
+![image](https://user-images.githubusercontent.com/53402465/105122633-ed641000-5b19-11eb-8568-93f892300c96.png)
+
+```
+# 사용자 반납한 책 상태 확인
+http GET http://20.194.7.119:8080/books
+```
+
+![image](https://user-images.githubusercontent.com/53402465/105122635-edfca680-5b19-11eb-81c2-5a3b8876ede8.png)
+
+```
+#마이페이지 확인
+http GET http://20.194.7.119:8080/mypages/2
+```
+
+![image](https://user-images.githubusercontent.com/75401893/105123049-b8a48880-5b1a-11eb-833e-a44ac80e983a.png)
+
+
+4. Request / Response
+
+```
 
 ## 동기식 호출 과 Fallback 처리
 
@@ -224,27 +296,29 @@ public interface PaymentService {
             .payship(payment);
     }
 ```
-
 - 동기식 호출에서는 호출 시간에 따른 타임 커플링이 발생하며, 결제 시스템이 장애가 나면 주문도 못받는다는 것을 확인:
 
-```
+
 # 결제 (payment) 서비스를 잠시 내려놓음
 
 #주문처리
-http http://localhost:8081/rentals memberId=1 bookId=1  #Fail  
-http http://localhost:8081/rentals memberId=2 bookId=2  #Fail
+http http://localhost:8081/rentals memberId=1 bookId=1  #Fail 
+```
+:
+    ![image](https://user-images.githubusercontent.com/53402465/105120797-3e720500-5b16-11eb-8b2f-d51aea5def12.PNG)
 
+```
 #결제서비스 재기동
 cd payment
 mvn spring-boot:run
 
 #주문처리
 http http://localhost:8081/rentals memberId=1 bookId=1   #Success
-http http://localhost:8081/rentals memberId=2 bookId=2   #Success
 ```
+:
+    ![image](https://user-images.githubusercontent.com/53402465/105120799-3f0a9b80-5b16-11eb-883e-51588b5d6804.PNG)
 
 - 또한 과도한 요청시에 서비스 장애가 도미노 처럼 벌어질 수 있다. (서킷브레이커, 폴백 처리는 운영단계에서 설명한다.)
-
 
 
 
@@ -295,16 +369,22 @@ public class PolicyHandler{
 
 ```
 
+
 도서관리 시스템은 대여/결제와 완전히 분리되어있으며, 이벤트 수신에 따라 처리되기 때문에, 도서관리시스템이 유지보수로 인해 잠시 내려간 상태라도 주문을 받는데 문제가 없다:
 ```
 # 도서관리 서비스 (book) 를 잠시 내려놓음
 
 #주문처리
 http http://localhost:8081/rentals memberId=1 bookId=1  #Success  
-http http://localhost:8081/rentals memberId=2 bookId=2  #Success
 
+
+```
 #주문상태 확인
-http localhost:8080/rentals     # 상태 안바뀜 "reserve" 확인 
+
+:
+    ![image](https://user-images.githubusercontent.com/53402465/105119392-96f3d300-5b13-11eb-99b0-f9a79bdde8b7.PNG)
+
+``` 
 
 #상점 서비스 기동
 cd book
@@ -313,21 +393,33 @@ mvn spring-boot:run
 #주문상태 확인
 http localhost:8080/rentals     # 모든 주문의 상태가 "reserved"으로 확인
 ```
+:
+    ![image](https://user-images.githubusercontent.com/53402465/105119394-978c6980-5b13-11eb-8159-65886bee3a81.PNG)
 
--------------------------------------------------------------여기까지 수정된 내용입니다.-----------------------------
+
 # 운영
 
 ## CI/CD 설정
 
 
-각 구현체들은 각자의 source repository 에 구성되었고, 사용한 CI/CD 플랫폼은 GCP를 사용하였으며, pipeline build script 는 각 프로젝트 폴더 이하에 cloudbuild.yml 에 포함되었다.
+각 구현체들은 각자의 source repository 에 구성되었고, 사용한 CI/CD 플랫폼은 Azure를 사용하였으며, pipeline build script 는 각 프로젝트 폴더 이하에 cloudbuild.yml 에 포함되었다.
+
+
+6. Deploy / Pipeline
+
+![image](https://user-images.githubusercontent.com/75237785/105120584-d6232380-5b15-11eb-8422-bb9bfc0cb273.jpg)
+
+![image](https://user-images.githubusercontent.com/75237785/105121326-41212a00-5b17-11eb-840f-d3c3bc369163.jpg)
+
 
 
 ## 동기식 호출 / 서킷 브레이킹 / 장애격리
 
+7. Circuit Breaker
+
 * 서킷 브레이킹 프레임워크의 선택: Spring FeignClient + Hystrix 옵션을 사용하여 구현함
 
-시나리오는 단말앱(app)-->결제(pay) 시의 연결을 RESTful Request/Response 로 연동하여 구현이 되어있고, 결제 요청이 과도할 경우 CB 를 통하여 장애격리.
+시나리오는 대여(rental)-->결제(payment) 연결을 RESTful Request/Response 로 연동하여 구현이 되어있고, 결제 요청이 과도할 경우 CB 를 통하여 장애격리.
 
 - Hystrix 를 설정:  요청처리 쓰레드에서 처리시간이 610 밀리가 넘어서기 시작하여 어느정도 유지되면 CB 회로가 닫히도록 (요청을 빠르게 실패처리, 차단) 설정
 ```
@@ -341,12 +433,12 @@ hystrix:
 
 ```
 
-- 피호출 서비스(결제:pay) 의 임의 부하 처리 - 400 밀리에서 증감 220 밀리 정도 왔다갔다 하게
+- 피호출 서비스(결제:payment) 의 임의 부하 처리 - 400 밀리에서 증감 220 밀리 정도 왔다갔다 하게
 ```
-# (pay) 결제이력.java (Entity)
+# Payment.java 
 
-    @PrePersist
-    public void onPrePersist(){  //결제이력을 저장한 후 적당한 시간 끌기
+    @PostPersist
+    public void onPostPersist(){  //결제이력을 저장한 후 적당한 시간 끌기
 
         ...
         
@@ -363,148 +455,24 @@ hystrix:
 - 60초 동안 실시
 
 ```
-$ siege -c100 -t60S -r10 --content-type "application/json" 'http://localhost:8081/orders POST {"item": "chicken"}'
-
-** SIEGE 4.0.5
-** Preparing 100 concurrent users for battle.
-The server is now under siege...
-
-HTTP/1.1 201     0.68 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     0.68 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     0.70 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     0.70 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     0.73 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     0.75 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     0.77 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     0.97 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     0.81 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     0.87 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     1.12 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     1.16 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     1.17 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     1.26 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     1.25 secs:     207 bytes ==> POST http://localhost:8081/orders
-
-* 요청이 과도하여 CB를 동작함 요청을 차단
-
-HTTP/1.1 500     1.29 secs:     248 bytes ==> POST http://localhost:8081/orders   
-HTTP/1.1 500     1.24 secs:     248 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 500     1.23 secs:     248 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 500     1.42 secs:     248 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 500     2.08 secs:     248 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     1.29 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 500     1.24 secs:     248 bytes ==> POST http://localhost:8081/orders
-
-* 요청을 어느정도 돌려보내고나니, 기존에 밀린 일들이 처리되었고, 회로를 닫아 요청을 다시 받기 시작
-
-HTTP/1.1 201     1.46 secs:     207 bytes ==> POST http://localhost:8081/orders  
-HTTP/1.1 201     1.33 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     1.36 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     1.63 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     1.65 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     1.68 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     1.69 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     1.71 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     1.71 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     1.74 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     1.76 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     1.79 secs:     207 bytes ==> POST http://localhost:8081/orders
-
-* 다시 요청이 쌓이기 시작하여 건당 처리시간이 610 밀리를 살짝 넘기기 시작 => 회로 열기 => 요청 실패처리
-
-HTTP/1.1 500     1.93 secs:     248 bytes ==> POST http://localhost:8081/orders    
-HTTP/1.1 500     1.92 secs:     248 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 500     1.93 secs:     248 bytes ==> POST http://localhost:8081/orders
-
-* 생각보다 빨리 상태 호전됨 - (건당 (쓰레드당) 처리시간이 610 밀리 미만으로 회복) => 요청 수락
-
-HTTP/1.1 201     2.24 secs:     207 bytes ==> POST http://localhost:8081/orders  
-HTTP/1.1 201     2.32 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     2.16 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     2.19 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     2.19 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     2.19 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     2.21 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     2.29 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     2.30 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     2.38 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     2.59 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     2.61 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     2.62 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     2.64 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     4.01 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     4.27 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     4.33 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     4.45 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     4.52 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     4.57 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     4.69 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     4.70 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     4.69 secs:     207 bytes ==> POST http://localhost:8081/orders
-
-* 이후 이러한 패턴이 계속 반복되면서 시스템은 도미노 현상이나 자원 소모의 폭주 없이 잘 운영됨
-
-
-HTTP/1.1 500     4.76 secs:     248 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 500     4.23 secs:     248 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     4.76 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     4.74 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 500     4.82 secs:     248 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     4.82 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     4.84 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     4.66 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 500     5.03 secs:     248 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 500     4.22 secs:     248 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 500     4.19 secs:     248 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 500     4.18 secs:     248 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     4.69 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     4.65 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     5.13 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 500     4.84 secs:     248 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 500     4.25 secs:     248 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 500     4.25 secs:     248 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     4.80 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 500     4.87 secs:     248 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 500     4.33 secs:     248 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     4.86 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 500     4.96 secs:     248 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 500     4.34 secs:     248 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 500     4.04 secs:     248 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     4.50 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     4.95 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     4.54 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     4.65 secs:     207 bytes ==> POST http://localhost:8081/orders
-
-
-:
-:
-
-Transactions:		        1025 hits
-Availability:		       63.55 %
-Elapsed time:		       59.78 secs
-Data transferred:	        0.34 MB
-Response time:		        5.60 secs
-Transaction rate:	       17.15 trans/sec
-Throughput:		        0.01 MB/sec
-Concurrency:		       96.02
-Successful transactions:        1025
-Failed transactions:	         588
-Longest transaction:	        9.20
-Shortest transaction:	        0.00
-
+$ siege -c100 -t60S -v --content-type "application/json" 'http://rental:8080/rentals POST {"memberId":1, "bookId":1}'
 ```
-- 운영시스템은 죽지 않고 지속적으로 CB 에 의하여 적절히 회로가 열림과 닫힘이 벌어지면서 자원을 보호하고 있음을 보여줌. 하지만, 63.55% 가 성공하였고, 46%가 실패했다는 것은 고객 사용성에 있어 좋지 않기 때문에 Retry 설정과 동적 Scale out (replica의 자동적 추가,HPA) 을 통하여 시스템을 확장 해주는 후속처리가 필요.
+ 
+![image](https://user-images.githubusercontent.com/53402465/105115586-6d837900-5b0c-11eb-81be-448a9d34edea.jpg)
+   
+![image](https://user-images.githubusercontent.com/53402465/105115589-6f4d3c80-5b0c-11eb-9819-36eab2df1a12.jpg)
 
-- Retry 의 설정 (istio)
-- Availability 가 높아진 것을 확인 (siege)
+- 운영시스템은 죽지 않고 지속적으로 CB 에 의하여 적절히 회로가 열림과 닫힘이 벌어지면서 자원을 보호하고 있음을 보여줌. 
+- 약 97%정도 정상적으로 처리되었음.
 
+8. Autoscale (HPA)
 ### 오토스케일 아웃
 앞서 CB 는 시스템을 안정되게 운영할 수 있게 해줬지만 사용자의 요청을 100% 받아들여주지 못했기 때문에 이에 대한 보완책으로 자동화된 확장 기능을 적용하고자 한다. 
 
 
 - 결제서비스에 대한 replica 를 동적으로 늘려주도록 HPA 를 설정한다. 설정은 CPU 사용량이 15프로를 넘어서면 replica 를 10개까지 늘려준다:
 ```
-kubectl autoscale deploy pay --min=1 --max=10 --cpu-percent=15
+kubectl autoscale deploy payment --min=1 --max=10 --cpu-percent=15
 ```
 - CB 에서 했던 방식대로 워크로드를 2분 동안 걸어준다.
 ```
@@ -514,84 +482,48 @@ siege -c100 -t120S -r10 --content-type "application/json" 'http://localhost:8081
 ```
 kubectl get deploy pay -w
 ```
-- 어느정도 시간이 흐른 후 (약 30초) 스케일 아웃이 벌어지는 것을 확인할 수 있다:
-```
-NAME    DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
-pay     1         1         1            1           17s
-pay     1         2         1            1           45s
-pay     1         4         1            1           1m
-:
-```
+- 어느정도 시간이 흐른 후 스케일 아웃이 벌어지는 것을 확인할 수 있다:
+
+![image](https://user-images.githubusercontent.com/53402465/105116790-c3f1b700-5b0e-11eb-8a8e-80016c453ebd.PNG)
+
 - siege 의 로그를 보아도 전체적인 성공률이 높아진 것을 확인 할 수 있다. 
-```
-Transactions:		        5078 hits
-Availability:		       92.45 %
-Elapsed time:		       120 secs
-Data transferred:	        0.34 MB
-Response time:		        5.60 secs
-Transaction rate:	       17.15 trans/sec
-Throughput:		        0.01 MB/sec
-Concurrency:		       96.02
-```
+
+![image](https://user-images.githubusercontent.com/53402465/105116542-50e84080-5b0e-11eb-8da0-33f742007e41.jpg)
 
 
+9. Zero-downtime deploy (readiness probe)
 ## 무정지 재배포
 
 * 먼저 무정지 재배포가 100% 되는 것인지 확인하기 위해서 Autoscaler 이나 CB 설정을 제거함
 
 - seige 로 배포작업 직전에 워크로드를 모니터링 함.
-```
-siege -c100 -t120S -r10 --content-type "application/json" 'http://localhost:8081/orders POST {"item": "chicken"}'
-
-** SIEGE 4.0.5
-** Preparing 100 concurrent users for battle.
-The server is now under siege...
-
-HTTP/1.1 201     0.68 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     0.68 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     0.70 secs:     207 bytes ==> POST http://localhost:8081/orders
-HTTP/1.1 201     0.70 secs:     207 bytes ==> POST http://localhost:8081/orders
-:
-
-```
-
 - 새버전으로의 배포 시작
+
 ```
 kubectl set image ...
 ```
 
+- readiness 설정
+
+![image](https://user-images.githubusercontent.com/53402465/105119450-b25ede00-5b13-11eb-947b-a2d6da8de334.jpg)
+
 - seige 의 화면으로 넘어가서 Availability 가 100% 미만으로 떨어졌는지 확인
-```
-Transactions:		        3078 hits
-Availability:		       70.45 %
-Elapsed time:		       120 secs
-Data transferred:	        0.34 MB
-Response time:		        5.60 secs
-Transaction rate:	       17.15 trans/sec
-Throughput:		        0.01 MB/sec
-Concurrency:		       96.02
+
+![image](https://user-images.githubusercontent.com/53402465/105119446-b1c64780-5b13-11eb-9af5-c28364c8870c.jpg)
+
+배포기간중 Availability 가 평소 100%에서 97% 대로 떨어지는 것을 확인. 
+원인은 쿠버네티스가 성급하게 새로 올려진 서비스를 READY 상태로 인식하여 서비스 유입을 진행한 것이기 때문. 이를 막기위해 Readiness Probe 를 설정함:
+
+- readiness 설정 수정
+
+![image](https://user-images.githubusercontent.com/53402465/105119444-b12db100-5b13-11eb-9143-04f44194eb64.jpg)
 
 ```
-배포기간중 Availability 가 평소 100%에서 70% 대로 떨어지는 것을 확인. 원인은 쿠버네티스가 성급하게 새로 올려진 서비스를 READY 상태로 인식하여 서비스 유입을 진행한 것이기 때문. 이를 막기위해 Readiness Probe 를 설정함:
-
-```
-# deployment.yaml 의 readiness probe 의 설정:
-
-
 kubectl apply -f kubernetes/deployment.yaml
 ```
 
 - 동일한 시나리오로 재배포 한 후 Availability 확인:
-```
-Transactions:		        3078 hits
-Availability:		       100 %
-Elapsed time:		       120 secs
-Data transferred:	        0.34 MB
-Response time:		        5.60 secs
-Transaction rate:	       17.15 trans/sec
-Throughput:		        0.01 MB/sec
-Concurrency:		       96.02
 
-```
+![image](https://user-images.githubusercontent.com/53402465/105119438-af63ed80-5b13-11eb-981e-bb5b1c754cea.jpg)
 
 배포기간 동안 Availability 가 변화없기 때문에 무정지 재배포가 성공한 것으로 확인됨.
